@@ -9,7 +9,7 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use Devlop\UtmParameters\Handlers\LaravelCookieJarHandler;
 use Devlop\UtmParameters\Handlers\LaravelHandler;
-// use Devlop\UtmParameters\Handlers\Psr7Handler;
+use Devlop\UtmParameters\Handlers\Psr7Handler;
 use Devlop\UtmParameters\Handlers\SymfonyHandler;
 use Devlop\UtmParameters\RequestHandlerInterface;
 use Devlop\UtmParameters\ResponseHandlerInterface;
@@ -46,7 +46,7 @@ final class UtmParameters
     private static $requestHandlers = [
         \Illuminate\Http\Request::class => LaravelHandler::class,
         \Symfony\Component\HttpFoundation\Request::class => SymfonyHandler::class,
-        // \Psr\Http\Message\ServerRequestInterface::class => Psr7Handler::class,
+        \Psr\Http\Message\ServerRequestInterface::class => Psr7Handler::class,
     ];
 
     /**
