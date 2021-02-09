@@ -1,0 +1,21 @@
+{
+    "name": "devlop/utm-parameters",
+    "description": "Framework agnostic UTM parameters helper",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Johan Rosenson",
+            "email": "johan@devlop.se"
+        }
+    ],
+    "require": {
+        "php": "^7.4|^8.0"
+    },
+    "suggest": {},
+    "autoload": {
+        "psr-4": {
+            "Devlop\\UtmParameters\\": "src/"
+        }
+    }
+}
