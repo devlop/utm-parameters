@@ -11,14 +11,23 @@ use Devlop\UtmParameters\UtmParameters;
 use InvalidArgumentException;
 use Symfony\Component\HttpFoundation\Cookie;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
+use Webmozart\Assert\Assert;
 
 final class SymfonyHandler implements RequestHandlerInterface, ResponseHandlerInterface
 {
     /**
      * Capture UTM parameters from a Symfony Request instance
+     *
+     * @param  Request  $request
+     * @return UtmParameters|null
+     *
+     * @throws InvalidArgumentException
      */
     public function capture($request) : ?UtmParameters
     {
+        Assert::isInstanceOf($request, Request::class);
+
         $query = $request->query;
 
         try {
@@ -36,9 +45,16 @@ final class SymfonyHandler implements RequestHandlerInterface, ResponseHandlerIn
 
     /**
      * Retrieve stored UTM parameters from a Symfony Request instance
+     *
+     * @param  Request  $request
+     * @return UtmParameters|null
+     *
+     * @throws InvalidArgumentException
      */
     public function retrieve($request) : ?UtmParameters
     {
+        Assert::isInstanceOf($request, Request::class);
+
         $cookies = $request->cookies;
 
         try {
@@ -56,9 +72,18 @@ final class SymfonyHandler implements RequestHandlerInterface, ResponseHandlerIn
 
     /**
      * Store the UTM parameters using a Symfony Response instance
+     *
+     * @param  UtmParameters  $utmParameters
+     * @param  Response  $response
+     * @param  DateTimeInterface  $expires
+     * @return void
+     *
+     * @throws InvalidArgumentException
      */
     public function remember(UtmParameters $utmParameters, $response, DateTimeInterface $expires) : void
     {
+        Assert::isInstanceOf($request, Response::class);
+
         foreach ($utmParameters->toArray() as $parameter => $value) {
             if ($value !== null) {
                 $response->headers->setCookie(new Cookie($parameter, $value, $expires->getTimestamp()));
@@ -70,9 +95,17 @@ final class SymfonyHandler implements RequestHandlerInterface, ResponseHandlerIn
 
     /**
      * Forget all stored UTM parameters using a Symfony Response instance
+     *
+     * @param  UtmParameters  $utmParameters
+     * @param  Response  $response
+     * @return void
+     *
+     * @throws InvalidArgumentException
      */
     public function forget(UtmParameters $utmParameters, $response) : void
     {
+        Assert::isInstanceOf($request, Response::class);
+
         foreach (array_keys($utmParameters->toArray()) as $parameter) {
             $response->headers->clearCookie($parameter);
         }

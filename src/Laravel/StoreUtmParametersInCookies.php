@@ -7,7 +7,7 @@ namespace Devlop\UtmParameters\Laravel;
 use Closure;
 use Devlop\UtmParameters\UtmParameters;
 use Illuminate\Http\Request;
-use Illuminate\Http\Response;
+use Symfony\Component\HttpFoundation\Response;
 
 final class StoreUtmParametersInCookies
 {
@@ -16,13 +16,13 @@ final class StoreUtmParametersInCookies
      *
      * @param  Request  $request
      * @param  Closure  $next
-     * @return mixed
+     * @return Response
      */
-    public function handle(Request $request, Closure $next)
+    public function handle(Request $request, Closure $next) : Response
     {
         $utmParameters = UtmParameters::capture($request);
 
-        return tap($next($request), function (Response $response) use ($request, $utmParameters) : void {
+        return tap($next($request), function (Response $response) use ($utmParameters) : void {
             optional($utmParameters)->remember($response, 30);
         });
     }

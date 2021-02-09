@@ -9,14 +9,12 @@ use DateTimeImmutable;
 use DateTimeInterface;
 use Devlop\UtmParameters\Handlers\LaravelCookieJarHandler;
 use Devlop\UtmParameters\Handlers\LaravelHandler;
+// use Devlop\UtmParameters\Handlers\Psr7Handler;
 use Devlop\UtmParameters\Handlers\SymfonyHandler;
 use Devlop\UtmParameters\RequestHandlerInterface;
 use Devlop\UtmParameters\ResponseHandlerInterface;
-use Illuminate\Contracts\Cookie\QueueingFactory as LaravelCookieJar;
-use Illuminate\Http\Response as LaravelResponse;
 use InvalidArgumentException;
-use Symfony\Component\HttpFoundation\Request as SymfonyRequest;
-use Symfony\Component\HttpFoundation\Response as SymfonyResponse;
+use Webmozart\Assert\Assert;
 
 final class UtmParameters
 {
@@ -30,15 +28,7 @@ final class UtmParameters
 
     public const CONTENT = 'utm_content';
 
-    public const ARGUMENTS = [
-        self::SOURCE,
-        self::MEDIUM,
-        self::CAMPAIGN,
-        self::TERM,
-        self::CONTENT,
-    ];
-
-    private ?string $source;
+    private string $source;
 
     private ?string $medium;
 
@@ -47,6 +37,28 @@ final class UtmParameters
     private ?string $term;
 
     private ?string $content;
+
+    /**
+     * Available request handlers
+     *
+     * @var array<class-string,class-string>
+     */
+    private static $requestHandlers = [
+        \Illuminate\Http\Request::class => LaravelHandler::class,
+        \Symfony\Component\HttpFoundation\Request::class => SymfonyHandler::class,
+        // \Psr\Http\Message\ServerRequestInterface::class => Psr7Handler::class,
+    ];
+
+    /**
+     * Available response handlers
+     *
+     * @var array<class-string,class-string>
+     */
+    private $responseHandlers = [
+        \Illuminate\Http\Response::class => LaravelHandler::class,
+        \Illuminate\Contracts\Cookie\QueueingFactory::class => LaravelCookieJarHandler::class,
+        \Symfony\Component\HttpFoundation\Response::class => SymfonyHandler::class,
+    ];
 
     /**
      * Initialize a new instance
@@ -81,11 +93,16 @@ final class UtmParameters
      */
     private static function getRequestHandler($request) : RequestHandlerInterface
     {
-        if ($request instanceof SymfonyRequest) {
-            return new SymfonyHandler;
+        foreach (self::$requestHandlers as $interface => $handler) {
+            if ($request instanceof $interface) {
+                return new $handler;
+            }
         }
 
-        throw new InvalidArgumentException('Unsupported $request, no handler found');
+        throw new InvalidArgumentException(sprintf(
+            'Unsupported $request "%1$s", no handler available.',
+            get_class($request),
+        ));
     }
 
     /**
@@ -98,15 +115,16 @@ final class UtmParameters
      */
     private function getResponseHandler($response) : ResponseHandlerInterface
     {
-        if ($response instanceof LaravelResponse) {
-            return new LaravelHandler;
-        } elseif ($response instanceof LaravelCookieJar) {
-            return new LaravelCookieJarHandler;
-        } elseif ($response instanceof SymfonyResponse) {
-            return new SymfonyHandler;
+        foreach ($this->responseHandlers as $interface => $handler) {
+            if ($response instanceof $interface) {
+                return new $handler;
+            }
         }
 
-        throw new InvalidArgumentException('Unsupported $response, no handler found');
+        throw new InvalidArgumentException(sprintf(
+            'Unsupported $response "%1$s", no handler available.',
+            get_class($response),
+        ));
     }
 
     /**
@@ -131,7 +149,9 @@ final class UtmParameters
      */
     public function remember($response, $expires) : void
     {
-        if (! is_integer($expires) && ! ($expires instanceof DateTimeInterface)) {
+        if (is_integer($expires)) {
+            Assert::greaterThan($expires, 0);
+        } elseif (! ($expires instanceof DateTimeInterface)) {
             throw new InvalidArgumentException('$expires argument must be an integer or an instanceof of DateTimeInterface');
         }
 
