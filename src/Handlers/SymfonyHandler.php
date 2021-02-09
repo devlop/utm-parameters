@@ -76,13 +76,13 @@ final class SymfonyHandler implements RequestHandlerInterface, ResponseHandlerIn
      * @param  UtmParameters  $utmParameters
      * @param  Response  $response
      * @param  DateTimeInterface  $expires
-     * @return void
+     * @return Response
      *
      * @throws InvalidArgumentException
      */
-    public function remember(UtmParameters $utmParameters, $response, DateTimeInterface $expires) : void
+    public function remember(UtmParameters $utmParameters, $response, DateTimeInterface $expires)
     {
-        Assert::isInstanceOf($request, Response::class);
+        Assert::isInstanceOf($response, Response::class);
 
         foreach ($utmParameters->toArray() as $parameter => $value) {
             if ($value !== null) {
@@ -91,6 +91,8 @@ final class SymfonyHandler implements RequestHandlerInterface, ResponseHandlerIn
                 $response->headers->clearCookie($parameter);
             }
         }
+
+        return $response;
     }
 
     /**
@@ -98,16 +100,18 @@ final class SymfonyHandler implements RequestHandlerInterface, ResponseHandlerIn
      *
      * @param  UtmParameters  $utmParameters
      * @param  Response  $response
-     * @return void
+     * @return Response
      *
      * @throws InvalidArgumentException
      */
-    public function forget(UtmParameters $utmParameters, $response) : void
+    public function forget(UtmParameters $utmParameters, $response)
     {
-        Assert::isInstanceOf($request, Response::class);
+        Assert::isInstanceOf($response, Response::class);
 
         foreach (array_keys($utmParameters->toArray()) as $parameter) {
             $response->headers->clearCookie($parameter);
         }
+
+        return $response;
     }
 }

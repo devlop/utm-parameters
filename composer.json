@@ -1,6 +1,7 @@
 {
     "name": "devlop/utm-parameters",
     "description": "Framework agnostic UTM parameters helper",
+    "keywords": ["psr-7", "utm-parameters"],
     "type": "library",
     "license": "MIT",
     "authors": [

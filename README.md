@@ -5,7 +5,7 @@
 
 # UTM Parameters
 
-Framework agnostic UTM parameters helper, this tool will simplify the handling of incoming UTM parameters.
+Framework agnostic (PSR-7 compatible) UTM parameters helper, this tool will simplify working with UTM parameters.
 
 # Todo
 

@@ -44,9 +44,9 @@ final class UtmParameters
      * @var array<class-string,class-string>
      */
     private static $requestHandlers = [
+        \Psr\Http\Message\ServerRequestInterface::class => Psr7Handler::class,
         \Illuminate\Http\Request::class => LaravelHandler::class,
         \Symfony\Component\HttpFoundation\Request::class => SymfonyHandler::class,
-        \Psr\Http\Message\ServerRequestInterface::class => Psr7Handler::class,
     ];
 
     /**
@@ -55,6 +55,7 @@ final class UtmParameters
      * @var array<class-string,class-string>
      */
     private $responseHandlers = [
+        \Psr\Http\Message\MessageInterface::class => Psr7Handler::class,
         \Illuminate\Http\Response::class => LaravelHandler::class,
         \Illuminate\Contracts\Cookie\QueueingFactory::class => LaravelCookieJarHandler::class,
         \Symfony\Component\HttpFoundation\Response::class => SymfonyHandler::class,
@@ -145,9 +146,9 @@ final class UtmParameters
      *
      * @param  mixed  $response
      * @param  int|DateTimeInterface  $expires
-     * @return void
+     * @return mixed
      */
-    public function remember($response, $expires) : void
+    public function remember($response, $expires)
     {
         if (is_integer($expires)) {
             Assert::greaterThan($expires, 0);
@@ -163,7 +164,7 @@ final class UtmParameters
             throw new InvalidArgumentException('$expires argument may not be in the past, use the forget() method to clear stored parameters');
         }
 
-        $this->getResponseHandler($response)->remember($this, $response, $expires);
+        return $this->getResponseHandler($response)->remember($this, $response, $expires);
     }
 
     /**
@@ -183,11 +184,11 @@ final class UtmParameters
      * Forget stored UTM parameters
      *
      * @param  mixed  $response
-     * @return void
+     * @return mixed
      */
-    public function forget($response) : void
+    public function forget($response)
     {
-        $this->getResponseHandler($response)->forget($this, $response);
+        return $this->getResponseHandler($response)->forget($this, $response);
     }
 
     /**

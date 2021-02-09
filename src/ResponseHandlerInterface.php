@@ -9,7 +9,7 @@ use Devlop\UtmParameters\UtmParameters;
 
 interface ResponseHandlerInterface
 {
-    public function remember(UtmParameters $UtmParameters, $response, DateTimeInterface $expires) : void;
+    public function remember(UtmParameters $UtmParameters, $response, DateTimeInterface $expires);
 
-    public function forget(UtmParameters $utmParameters, $response) : void;
+    public function forget(UtmParameters $utmParameters, $response);
 }

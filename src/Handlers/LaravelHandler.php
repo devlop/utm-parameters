@@ -74,9 +74,9 @@ final class LaravelHandler implements RequestHandlerInterface, ResponseHandlerIn
      * @param  UtmParameters  $utmParameters
      * @param  Response  $response
      * @param  DateTimeInterface  $expires
-     * @return void
+     * @return Response
      */
-    public function remember(UtmParameters $utmParameters, $response, DateTimeInterface $expires) : void
+    public function remember(UtmParameters $utmParameters, $response, DateTimeInterface $expires)
     {
         Assert::isInstanceOf($response, Response::class);
 
@@ -89,6 +89,8 @@ final class LaravelHandler implements RequestHandlerInterface, ResponseHandlerIn
                 $response->withoutCookie($parameter);
             }
         }
+
+        return $response;
     }
 
     /**
@@ -96,14 +98,16 @@ final class LaravelHandler implements RequestHandlerInterface, ResponseHandlerIn
      *
      * @param  UtmParameters  $utmParameters
      * @param  Response  $storage
-     * @return void
+     * @return Response
      */
-    public function forget(UtmParameters $utmParameters, $response) : void
+    public function forget(UtmParameters $utmParameters, $response)
     {
         Assert::isInstanceOf($response, Response::class);
 
         foreach (array_keys($utmParameters->toArray()) as $parameter) {
             $response->withoutCookie($parameter);
         }
+
+        return $response;
     }
 }

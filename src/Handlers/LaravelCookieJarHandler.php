@@ -23,9 +23,9 @@ final class LaravelCookieJarHandler implements ResponseHandlerInterface
      * @param  UtmParameters  $utmParameters
      * @param  QueueingFactory  $cookieJar
      * @param  DateTimeInterface  $expires
-     * @return void
+     * @return QueueingFactory
      */
-    public function remember(UtmParameters $utmParameters, $cookieJar, DateTimeInterface $expires) : void
+    public function remember(UtmParameters $utmParameters, $cookieJar, DateTimeInterface $expires)
     {
         Assert::isInstanceOf($cookieJar, QueueingFactory::class);
 
@@ -37,6 +37,8 @@ final class LaravelCookieJarHandler implements ResponseHandlerInterface
                 : $cookieJar->forget($parameter),
             );
         }
+
+        return $cookieJar;
     }
 
     /**
@@ -44,9 +46,9 @@ final class LaravelCookieJarHandler implements ResponseHandlerInterface
      *
      * @param  UtmParameters  $utmParameters
      * @param  QueueingFactory  $cookieJar
-     * @return void
+     * @return QueueingFactory
      */
-    public function forget(UtmParameters $utmParameters, $cookieJar) : void
+    public function forget(UtmParameters $utmParameters, $cookieJar)
     {
         Assert::isInstanceOf($cookieJar, QueueingFactory::class);
 
@@ -55,5 +57,7 @@ final class LaravelCookieJarHandler implements ResponseHandlerInterface
                 $cookieJar->forget($parameter),
             );
         }
+
+        return $cookieJar;
     }
 }

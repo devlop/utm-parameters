@@ -4,19 +4,20 @@ declare(strict_types=1);
 
 namespace Devlop\UtmParameters\Handlers;
 
-// use DateTimeInterface;
+use DateTimeImmutable;
+use DateTimeInterface;
 use Devlop\UtmParameters\RequestHandlerInterface;
-// use Devlop\UtmParameters\ResponseHandlerInterface;
+use Devlop\UtmParameters\ResponseHandlerInterface;
 use Devlop\UtmParameters\UtmParameters;
 use InvalidArgumentException;
+use Psr\Http\Message\MessageInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Webmozart\Assert\Assert;
 
-final class Psr7Handler implements RequestHandlerInterface
-// , ResponseHandlerInterface
+final class Psr7Handler implements RequestHandlerInterface, ResponseHandlerInterface
 {
     /**
-     * Capture UTM parameters from a Psr7 Request instance
+     * Capture UTM parameters from a PSR-7 ServerRequestInterface instance
      *
      * @param  ServerRequestInterface  $request
      * @return UtmParameters|null
@@ -43,9 +44,9 @@ final class Psr7Handler implements RequestHandlerInterface
     }
 
     /**
-     * Retrieve stored UTM parameters from a Symfony Request instance
+     * Retrieve stored UTM parameters from a PSR-7 ServerRequestInterface instance
      *
-     * @param  Request  $request
+     * @param  ServerRequestInterface  $request
      * @return UtmParameters|null
      *
      * @throws InvalidArgumentException
@@ -69,44 +70,101 @@ final class Psr7Handler implements RequestHandlerInterface
         }
     }
 
-    // /**
-    //  * Store the UTM parameters using a Symfony Response instance
-    //  *
-    //  * @param  UtmParameters  $utmParameters
-    //  * @param  Response  $response
-    //  * @param  DateTimeInterface  $expires
-    //  * @return void
-    //  *
-    //  * @throws InvalidArgumentException
-    //  */
-    // public function remember(UtmParameters $utmParameters, $response, DateTimeInterface $expires) : void
-    // {
-    //     Assert::isInstanceOf($request, Response::class);
+    /**
+     * Store the UTM parameters using a PSR-7 MessageInterface instance
+     *
+     * @param  UtmParameters  $utmParameters
+     * @param  MessageInterface  $response
+     * @param  DateTimeInterface  $expires
+     * @return MessageInterface
+     *
+     * @throws InvalidArgumentException
+     */
+    public function remember(UtmParameters $utmParameters, $response, DateTimeInterface $expires)
+    {
+        Assert::isInstanceOf($response, MessageInterface::class);
 
-    //     foreach ($utmParameters->toArray() as $parameter => $value) {
-    //         if ($value !== null) {
-    //             $response->headers->setCookie(new Cookie($parameter, $value, $expires->getTimestamp()));
-    //         } else {
-    //             $response->headers->clearCookie($parameter);
-    //         }
-    //     }
-    // }
+        foreach ($utmParameters->toArray() as $parameter => $value) {
+            $response = $response->withAddedHeader('Set-Cookie', $this->getSetCookieHeaderValue($parameter, $value, $expires));
+        }
 
-    // /**
-    //  * Forget all stored UTM parameters using a Symfony Response instance
-    //  *
-    //  * @param  UtmParameters  $utmParameters
-    //  * @param  Response  $response
-    //  * @return void
-    //  *
-    //  * @throws InvalidArgumentException
-    //  */
-    // public function forget(UtmParameters $utmParameters, $response) : void
-    // {
-    //     Assert::isInstanceOf($request, Response::class);
+        return $response;
+    }
 
-    //     foreach (array_keys($utmParameters->toArray()) as $parameter) {
-    //         $response->headers->clearCookie($parameter);
-    //     }
-    // }
+    /**
+     * Forget all stored UTM parameters using a Symfony Response instance
+     *
+     * @param  UtmParameters  $utmParameters
+     * @param  Response  $response
+     * @return MessageInterface
+     *
+     * @throws InvalidArgumentException
+     */
+    public function forget(UtmParameters $utmParameters, $response)
+    {
+        Assert::isInstanceOf($response, MessageInterface::class);
+
+        foreach (array_keys($utmParameters->toArray()) as $parameter) {
+            $response = $response->withAddedHeader('Set-Cookie', $this->getRemoveCookieHeaderValue($parameter));
+        }
+
+        return $response;
+    }
+
+    /**
+     * Get the value for a Set-Cookie header that removes the cookie from the client
+     *
+     * @param  string  $name
+     * @return string
+     */
+    private function getRemoveCookieHeaderValue(string $name) : string
+    {
+        return $this->getSetCookieHeaderValue($name, '', null);
+    }
+
+    /**
+     * Get the value for the Set-Cookie header
+     *
+     * @param  string  $name
+     * @param  string|null  $value
+     * @param  DateTimeInterface|null  $expires
+     * @return string
+     */
+    private function getSetCookieHeaderValue(string $name, ?string $value, ?DateTimeInterface $expires) : string
+    {
+        $shouldRemove = (string) $value === '' || $expires === null
+            ? true
+            : false;
+
+        $nameValueAttribute = sprintf(
+            '%1$s=%2$s',
+            $name,
+            ! $shouldRemove
+                ? urlencode($value)
+                : '',
+        );
+
+        $expiresAttribute = sprintf(
+            'expires=%1$s',
+            ! $shouldRemove
+                ? gmdate('D, d M Y H:i:s T', $expires->getTimestamp())
+                : gmdate('D, d M Y H:i:s T', (new DateTimeImmutable)->getTimestamp() - 31536002),
+        );
+
+        $maxAgeAttribute = sprintf(
+            'max-age=%1$s',
+            ! $shouldRemove
+                ? $expires->getTimestamp() - (new DateTimeImmutable)->getTimestamp()
+                : 0,
+        );
+
+        $pathAttribute = 'path=/';
+
+        return implode('; ', [
+            $nameValueAttribute,
+            $expiresAttribute,
+            $maxAgeAttribute,
+            $pathAttribute,
+        ]);
+    }
 }
