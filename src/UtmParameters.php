@@ -114,6 +114,10 @@ final class UtmParameters implements UtmParametersFactoryInterface, UtmParameter
      */
     private static function getRequestHandler($request) : RequestHandlerInterface
     {
+        if ($request instanceof RequestHandlerInterface) {
+            return $request;
+        }
+
         foreach (self::$requestHandlers as $interface => $handler) {
             if ($request instanceof $interface) {
                 return new $handler;
@@ -136,6 +140,10 @@ final class UtmParameters implements UtmParametersFactoryInterface, UtmParameter
      */
     private function getResponseHandler($response) : ResponseHandlerInterface
     {
+        if ($response instanceof ResponseHandlerInterface) {
+            return $response;
+        }
+
         foreach ($this->responseHandlers as $interface => $handler) {
             if ($response instanceof $interface) {
                 return new $handler;
