@@ -183,7 +183,7 @@ final class UtmParameters implements UtmParametersFactoryInterface, UtmParameter
      */
     public function remember($response, $expires)
     {
-        if (is_integer($expires)) {
+        if (\is_integer($expires)) {
             Assert::greaterThan($expires, 0);
         } elseif (! ($expires instanceof DateTimeInterface)) {
             throw new InvalidArgumentException('$expires argument must be an integer or an instanceof of DateTimeInterface');

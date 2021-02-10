@@ -108,7 +108,7 @@ final class SymfonyHandler implements RequestHandlerInterface, ResponseHandlerIn
     {
         Assert::isInstanceOf($response, Response::class);
 
-        foreach (array_keys($utmParameters->toArray()) as $parameter) {
+        foreach (\array_keys($utmParameters->toArray()) as $parameter) {
             $response->headers->clearCookie($parameter);
         }
 

@@ -29,7 +29,7 @@ final class LaravelCookieJarHandler implements ResponseHandlerInterface
     {
         Assert::isInstanceOf($cookieJar, QueueingFactory::class);
 
-        $minutes = (int) floor($this->secondsUntil($expires) / 60);
+        $minutes = $this->minutesUntil($expires);
 
         foreach ($utmParameters->toArray() as $parameter => $value) {
             $cookieJar->queue($value !== null
@@ -52,7 +52,7 @@ final class LaravelCookieJarHandler implements ResponseHandlerInterface
     {
         Assert::isInstanceOf($cookieJar, QueueingFactory::class);
 
-        foreach (array_keys($utmParameters->toArray()) as $parameter) {
+        foreach (\array_keys($utmParameters->toArray()) as $parameter) {
             $cookieJar->queue(
                 $cookieJar->forget($parameter),
             );

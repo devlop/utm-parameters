@@ -104,7 +104,7 @@ final class Psr7Handler implements RequestHandlerInterface, ResponseHandlerInter
     {
         Assert::isInstanceOf($response, MessageInterface::class);
 
-        foreach (array_keys($utmParameters->toArray()) as $parameter) {
+        foreach (\array_keys($utmParameters->toArray()) as $parameter) {
             $response = $response->withAddedHeader('Set-Cookie', $this->getRemoveCookieHeaderValue($parameter));
         }
 
@@ -136,7 +136,7 @@ final class Psr7Handler implements RequestHandlerInterface, ResponseHandlerInter
             ? true
             : false;
 
-        $nameValueAttribute = sprintf(
+        $nameValueAttribute = \sprintf(
             '%1$s=%2$s',
             $name,
             ! $shouldRemove
@@ -144,14 +144,14 @@ final class Psr7Handler implements RequestHandlerInterface, ResponseHandlerInter
                 : '',
         );
 
-        $expiresAttribute = sprintf(
+        $expiresAttribute = \sprintf(
             'expires=%1$s',
             ! $shouldRemove
-                ? gmdate('D, d M Y H:i:s T', $expires->getTimestamp())
-                : gmdate('D, d M Y H:i:s T', (new DateTimeImmutable)->getTimestamp() - 31536002),
+                ? \gmdate('D, d M Y H:i:s T', $expires->getTimestamp())
+                : \gmdate('D, d M Y H:i:s T', (new DateTimeImmutable)->getTimestamp() - 31536002),
         );
 
-        $maxAgeAttribute = sprintf(
+        $maxAgeAttribute = \sprintf(
             'max-age=%1$s',
             ! $shouldRemove
                 ? $expires->getTimestamp() - (new DateTimeImmutable)->getTimestamp()
@@ -160,7 +160,7 @@ final class Psr7Handler implements RequestHandlerInterface, ResponseHandlerInter
 
         $pathAttribute = 'path=/';
 
-        return implode('; ', [
+        return \implode('; ', [
             $nameValueAttribute,
             $expiresAttribute,
             $maxAgeAttribute,

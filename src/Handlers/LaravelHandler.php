@@ -80,7 +80,7 @@ final class LaravelHandler implements RequestHandlerInterface, ResponseHandlerIn
     {
         Assert::isInstanceOf($response, Response::class);
 
-        $minutes = (int) floor($this->secondsUntil($expires) / 60);
+        $minutes = $this->minutesUntil($expires);
 
         foreach ($utmParameters->toArray() as $parameter => $value) {
             if ($value !== null) {
@@ -104,7 +104,7 @@ final class LaravelHandler implements RequestHandlerInterface, ResponseHandlerIn
     {
         Assert::isInstanceOf($response, Response::class);
 
-        foreach (array_keys($utmParameters->toArray()) as $parameter) {
+        foreach (\array_keys($utmParameters->toArray()) as $parameter) {
             $response->withoutCookie($parameter);
         }
 
