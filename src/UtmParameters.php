@@ -178,20 +178,20 @@ final class UtmParameters implements UtmParametersFactoryInterface, UtmParameter
      * Store the UTM parameters for later use
      *
      * @param  mixed  $response
-     * @param  int|DateTimeInterface  $expires
+     * @param  int|DateInterval|DateTimeInterface  $expires
      * @return mixed
      */
     public function remember($response, $expires)
     {
         if (\is_integer($expires)) {
             Assert::greaterThan($expires, 0);
-        } elseif (! ($expires instanceof DateTimeInterface)) {
+        } elseif (! ($expires instanceof DateTimeInterface) && ! ($expires instanceof DateInterval)) {
             throw new InvalidArgumentException('$expires argument must be an integer or an instanceof of DateTimeInterface');
         }
 
         $expires = $expires instanceof DateTimeInterface
             ? clone $expires
-            : (new DateTimeImmutable)->add(new DateInterval("P{$expires}D"));
+            : (new DateTimeImmutable)->add($expires instanceof DateInterval ? $expires : new DateInterval("P{$expires}D"));
 
         if ($expires < (new DateTimeImmutable)) {
             throw new InvalidArgumentException('$expires argument may not be in the past, use the forget() method to clear stored parameters');
