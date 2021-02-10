@@ -220,7 +220,7 @@ final class UtmParameters implements UtmParametersFactoryInterface, UtmParameter
     }
 
     /**
-     * Get the source parameter
+     * Get the source parameter value
      */
     public function getSource() : string
     {
@@ -228,7 +228,7 @@ final class UtmParameters implements UtmParametersFactoryInterface, UtmParameter
     }
 
     /**
-     * Get the medium parameter
+     * Get the medium parameter value
      */
     public function getMedium() : ?string
     {
@@ -236,7 +236,7 @@ final class UtmParameters implements UtmParametersFactoryInterface, UtmParameter
     }
 
     /**
-     * Get the campaign parameter
+     * Get the campaign parameter value
      */
     public function getCampaign() : ?string
     {
@@ -244,7 +244,7 @@ final class UtmParameters implements UtmParametersFactoryInterface, UtmParameter
     }
 
     /**
-     * Get the term parameter
+     * Get the term parameter value
      */
     public function getTerm() : ?string
     {
@@ -252,7 +252,7 @@ final class UtmParameters implements UtmParametersFactoryInterface, UtmParameter
     }
 
     /**
-     * Get the content parameter
+     * Get the content parameter value
      */
     public function getContent() : ?string
     {
@@ -260,7 +260,7 @@ final class UtmParameters implements UtmParametersFactoryInterface, UtmParameter
     }
 
     /**
-     * Get all parameters as an array
+     * Get all parameters as a key => value array
      *
      * @return array<string,string|null>
      */
