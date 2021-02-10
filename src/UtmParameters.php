@@ -16,7 +16,7 @@ use Devlop\UtmParameters\ResponseHandlerInterface;
 use InvalidArgumentException;
 use Webmozart\Assert\Assert;
 
-final class UtmParameters
+final class UtmParameters implements UtmParametersFactoryInterface, UtmParametersInterface
 {
     public const SOURCE = 'utm_source';
 
@@ -62,7 +62,7 @@ final class UtmParameters
     ];
 
     /**
-     * Initialize a new instance
+     * Instantiate a new instance
      *
      * @param  string|null  $source
      * @param  string|null  $medium
@@ -82,6 +82,26 @@ final class UtmParameters
         $this->campaign = $campaign;
         $this->term = $term;
         $this->content = $content;
+    }
+
+    /**
+     * Create an instance (for testing/mocking) with random data
+     */
+    public static function fake() : UtmParametersInterface
+    {
+        $source = 'newsletter';
+        $medium = 'email';
+        $campaign = 'spam-' . mb_strtolower(date('F-Y'));
+        $term = 'ducks';
+        $content = 'Free Ducks';
+
+        return new static(
+            $source,
+            $medium,
+            $campaign,
+            $term,
+            $content,
+        );
     }
 
     /**
@@ -132,13 +152,26 @@ final class UtmParameters
      * Capture UTM parameters from a request
      *
      * @param  mixed  $request
-     * @return UtmParameters|null
+     * @return UtmParametersInterface|null
      *
      * @throws InvalidArgumentException
      */
-    public static function capture($request) : ?self
+    public static function capture($request) : ?UtmParametersInterface
     {
         return self::getRequestHandler($request)->capture($request);
+    }
+
+    /**
+     * Retrieve stored UTM parameters from a request
+     *
+     * @param  mixed  $request
+     * @return UtmParametersInterface|null
+     *
+     * @throws InvalidArgumentException
+     */
+    public static function retrieve($request) : ?UtmParametersInterface
+    {
+        return self::getRequestHandler($request)->retrieve($request);
     }
 
     /**
@@ -168,19 +201,6 @@ final class UtmParameters
     }
 
     /**
-     * Retrieve stored UTM parameters from a request
-     *
-     * @param  mixed  $request
-     * @return UtmParameters|null
-     *
-     * @throws InvalidArgumentException
-     */
-    public static function retrieve($request) : ?self
-    {
-        return self::getRequestHandler($request)->retrieve($request);
-    }
-
-    /**
      * Forget stored UTM parameters
      *
      * @param  mixed  $response
@@ -194,7 +214,7 @@ final class UtmParameters
     /**
      * Get the source parameter
      */
-    public function getSource() : ?string
+    public function getSource() : string
     {
         return $this->source;
     }
