@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Devlop\UtmParameters;
 
+use ArrayIterator;
 use DateInterval;
 use DateTimeImmutable;
 use DateTimeInterface;
@@ -14,9 +15,10 @@ use Devlop\UtmParameters\Handlers\SymfonyHandler;
 use Devlop\UtmParameters\RequestHandlerInterface;
 use Devlop\UtmParameters\ResponseHandlerInterface;
 use InvalidArgumentException;
+use IteratorAggregate;
 use Webmozart\Assert\Assert;
 
-final class UtmParameters implements UtmParametersFactoryInterface, UtmParametersInterface
+final class UtmParameters implements UtmParametersFactoryInterface, UtmParametersInterface, IteratorAggregate
 {
     public const SOURCE = 'utm_source';
 
@@ -257,6 +259,16 @@ final class UtmParameters implements UtmParametersFactoryInterface, UtmParameter
     public function getContent() : ?string
     {
         return $this->content;
+    }
+
+    /**
+     * Required by the IteratorAggregate interface.
+     *
+     * Returns an external iterator.
+     */
+    public function getIterator() : ArrayIterator
+    {
+        return new ArrayIterator($this->toArray());
     }
 
     /**
