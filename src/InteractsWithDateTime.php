@@ -17,7 +17,7 @@ trait InteractsWithDateTime
      */
     private function minutesUntil(DateTimeInterface $dateTime) : int
     {
-        return (int) \floor($this->secondsUntil($expires) / 60);
+        return (int) \floor($this->secondsUntil($dateTime) / 60);
     }
 
     /**
